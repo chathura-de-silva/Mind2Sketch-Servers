@@ -1,13 +1,12 @@
 from fastapi import FastAPI
+from services import random_generator
 from vectors import load_vectors
 
 vectors = load_vectors()
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+@app.post("/random")
+def random_generate(count: int):
+    images = random_generator(count)
+    return images
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
