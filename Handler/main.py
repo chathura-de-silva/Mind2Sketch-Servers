@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from vectors import load_vectors
 
+vectors = load_vectors()
 app = FastAPI()
 
 @app.get("/")
