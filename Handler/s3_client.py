@@ -6,7 +6,7 @@ s3 = boto3.client('s3',
 				  aws_access_key_id= settings.aws_access_key_id,
                   aws_secret_access_key= settings.aws_secret_access_key,
                     region_name= settings.aws_default_region,   
-                     **({'endpoint_url': settings.aws_s3_endpoint_url} if settings.aws_s3_endpoint_url else {}
+                     **({'endpoint_url': settings.aws_s3_endpoint_url} if settings.aws_s3_endpoint_url else {})
                   )  # Automatically reads other config from env vars named acccording to boto3 standards.
 
 
