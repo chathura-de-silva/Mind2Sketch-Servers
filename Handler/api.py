@@ -1,19 +1,42 @@
-from fastapi import APIRouter, Body
-from services import mix_generator, random_generator, text_generator
+from fastapi import APIRouter, HTTPException
+from services import mix_generator, random_generator, slide_editor, text_generator
+from models import (
+    ImageResponse, RandomGenerateRequest, SlideGenerateRequest, TextToImageRequest,
+    MixGenerateRequest, TextEditRequest, ImagesResponse
+)
+from vectors import get_fixed_vectors
 
 router = APIRouter()
 
-@router.post("/random")
-def random_generate(count: int = Body(..., embed=True)):
-    images = random_generator(count)
+@router.post("/images/random", response_model=ImagesResponse)
+async def random_generate(body: RandomGenerateRequest):
+    images = await random_generator(body.count)
+    return ImagesResponse(images=images, count=len(images))
+
+@router.post("/images/text-to-image", response_model=ImagesResponse)
+async def text_generate(body: TextToImageRequest):
+    images = text_generator(body.prompt, body.count)
     return images
 
-@router.post("/mix")
-def mix_generate():
+@router.get("/images/text-edit", response_model=ImagesResponse)
+async def text_edit(body: TextEditRequest):
+    edited_images = ["edited_image_data"]
+    return edited_images
+
+@router.post("/images/slide", response_model=ImageResponse) # returns only one image.
+async def slide_edit(body: SlideGenerateRequest):
+    if body.vector_id > len(get_fixed_vectors()) - 1:
+        raise HTTPException(status_code=422, detail=f"vector_id must be <= {len(get_fixed_vectors()) - 1}")
+    try:
+        new_image_id = await slide_editor(body.id, body.vector_id, body.blend_ratio)
+        return ImageResponse(id=new_image_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RuntimeError as e: 
+        raise HTTPException(status_code=503, detail=str(e))
+
+@router.post("/images/mix", response_model=ImagesResponse)
+async def mix_generate(body: MixGenerateRequest):
     images = mix_generator()
     return images
 
-@router.post("/texttoimage")
-def text_generate():
-    images = text_generator()
-    return images

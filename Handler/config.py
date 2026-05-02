@@ -1,3 +1,5 @@
+from enum import Enum
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -17,10 +19,33 @@ class Settings(BaseSettings):
     aws_s3_endpoint_url: str = ""  # Optional, for custom S3-compatible services
 
     #Databse Settings
-    mongodb_url: str = ""
+    mongodb_uri: str = ""
     mongodb_db_name: str = ""
 
     # Automatically load from .env file
     model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()
+
+
+class jobType(Enum):
+    GENERATE_S = 1
+    GENERATE_W = 2
+    PRE_MIX = 3
+    PRE_MAPPER_TEXT = 4
+    PRE_MAPPER_RAND = 5
+
+
+class imageStatus(Enum):
+    PENDING = "pending" # if its on the pre processing queue
+    QUEUED = "queued" # if its on the generation queue
+    READY = "ready" # if its ready to be displayed
+    RUNNING = "running" # if its currently being processed picked from generation queue
+    FAILED = "failed" # if its processing failed
+
+class ChangeType(Enum):
+    TEXT_INIT   = "text_init"
+    TEXT_EDIT   = "text_edit"
+    SLIDE_EDIT  = "slide_edit"
+    RANDOM_INIT = "random_init"
+    MIX         = "mix"
