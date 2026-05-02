@@ -1,5 +1,4 @@
 import boto3
-from urllib.request import Request, urlopen
 from config import settings
 
 s3 = boto3.client('s3',

@@ -12,3 +12,19 @@ def random_generator(count: int):
         image = "random_image_data"
         images.append(image)
     return images
+
+def mix_generator():
+    # This function generates mixed images and returns them as a list
+    images = []
+    for _ in range(5):  # Assuming we generate 5 mixed images
+        image = "mixed_image_data"
+        images.append(image)
+    return images
+
+def text_generator():
+    # This function generates images based on text input and returns them as a list
+    images = []
+    for _ in range(5):  # Assuming we generate 5 text-to-image results
+        image = "text_to_image_data"
+        images.append(image)
+    return images
