@@ -28,9 +28,7 @@ class SlideGenerateRequest(BaseModel):
 # --- Response Models ---
 
 class ImageResponse(BaseModel):
-    job_id: str
     id: str
-    url: str
 
 class ImagesResponse(BaseModel):
     images: List[ImageResponse]

@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from config import settings
+from config import ChangeType, imageStatus, settings
 
 
 class Database:
@@ -33,11 +33,7 @@ class Database:
                             "status": {
                                 "bsonType": "string",
                                 "enum": [
-                                    "queued",
-                                    "ready",
-                                    "running",
-                                    "failed",
-                                    "done",
+                                   e.value for e in imageStatus
                                 ],
                             },
                         },
@@ -70,11 +66,7 @@ class Database:
                                         "change_type": {
                                             "bsonType": "string",
                                             "enum": [
-                                                "text_init",
-                                                "text_edit",
-                                                "slide_edit",
-                                                "random_init",
-                                                "mix",
+                                              e.value for e in ChangeType
                                             ],
                                         },
                                         "change_metadata": {

@@ -1,16 +1,34 @@
-from enum import Enum
-class jobType(Enum):
-    GENERATE = 1
-    PRE_MIX = 2
-    PRE_MAPPER = 3
+import random
+
+from config import imageStatus, jobType
+from database import database
+from models import ImageResponse
+from redisClient import enqueue_job
+from vectors import VECTOR_LENGTH
+import asyncio
 
 
-def random_generator(count: int):
-    images = []
-    for _ in range(count):
-        image = "random_image_data"
-        images.append(image)
-    return images
+async def random_generator(count: int) -> list[ImageResponse]:
+    
+    async def create_one() -> ImageResponse:
+        vector = [0] * VECTOR_LENGTH # place holder vector to create a database entry.
+
+        result = await database.db["images"].insert_one(
+            {"vector": vector, "status": imageStatus.PENDING.value}
+        )
+
+        image_id = str(result.inserted_id)
+
+        enqueue_job(
+            job_type=jobType.PRE_MAPPER_RAND,
+            payload={"seed":random.randint(-1000, 1000)},  # update the bounds as needed
+            job_id=image_id
+        )
+
+        return ImageResponse(id=image_id)
+
+    return list(await asyncio.gather(*[create_one() for _ in range(count)]))
+
 
 def mix_generator():
     # This function generates mixed images and returns them as a list
@@ -19,6 +37,7 @@ def mix_generator():
         image = "mixed_image_data"
         images.append(image)
     return images
+
 
 def text_generator(prompt: str, count: int):
     # This function generates images based on text input and returns them as a list

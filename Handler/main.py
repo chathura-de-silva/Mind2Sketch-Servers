@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from vectors import load_vectors
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
 from database import database as dbClient
 from redisClient import redis_conn
 from api import router
