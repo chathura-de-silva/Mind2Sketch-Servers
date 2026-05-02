@@ -1,17 +1,18 @@
 import random
 
+from bson import ObjectId
 from config import imageStatus, jobType
 from database import database
 from models import ImageResponse
 from redisClient import enqueue_job
-from vectors import VECTOR_LENGTH
+from vectors import VECTOR_LENGTH, get_fixed_vectors
 import asyncio
-
+import numpy as np
 
 async def random_generator(count: int) -> list[ImageResponse]:
     
     async def create_one() -> ImageResponse:
-        vector = [0] * VECTOR_LENGTH # place holder vector to create a database entry.
+        vector = [0.0] * VECTOR_LENGTH # place holder vector to create a database entry.
 
         result = await database.db["images"].insert_one(
             {"vector": vector, "status": imageStatus.PENDING.value}
@@ -46,3 +47,26 @@ def text_generator(prompt: str, count: int):
         image = f"text_to_image_data_{prompt}"
         images.append(image)
     return images
+
+
+async def slide_editor(image_id: str, vector_id: int, blend_ratio: float)-> str:
+
+    image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
+    if image_entry is None:
+        raise ValueError(f"Image with id {image_id} does not exist")   
+    if image_entry["status"] != imageStatus.READY.value:
+        raise ValueError(f"Image with id {image_id} is not ready for editing. Current status: {image_entry['status']}")
+    
+    original_vector = np.array(image_entry["vector"])
+    feature_vector= np.array(get_fixed_vectors()[vector_id]["vector"] )
+    blended_vector = (original_vector + blend_ratio * feature_vector).tolist()
+    result = await database.db["images"].insert_one(
+        {"vector": blended_vector, "status": imageStatus.QUEUED.value}
+    )
+    new_id = str(result.inserted_id)
+    enqueue_job(
+        job_type=jobType.GENERATE_W,
+        payload={"vector": blended_vector},
+        job_id=new_id
+    )
+    return new_id

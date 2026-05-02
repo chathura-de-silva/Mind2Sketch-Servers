@@ -28,7 +28,7 @@ class Database:
                             "_id": {"bsonType": "objectId"},
                             "vector": {
                                 "bsonType": "array",
-                                "items": {"bsonType": "int"},
+                                "items": {"bsonType": "double"},
                             },
                             "status": {
                                 "bsonType": "string",

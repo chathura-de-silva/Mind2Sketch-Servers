@@ -29,10 +29,11 @@ settings = Settings()
 
 
 class jobType(Enum):
-    GENERATE = 1
-    PRE_MIX = 2
-    PRE_MAPPER_TEXT = 3
-    PRE_MAPPER_RAND = 4
+    GENERATE_S = 1
+    GENERATE_W = 2
+    PRE_MIX = 3
+    PRE_MAPPER_TEXT = 4
+    PRE_MAPPER_RAND = 5
 
 
 class imageStatus(Enum):

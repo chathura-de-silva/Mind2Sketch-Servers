@@ -15,7 +15,7 @@ def enqueue_job(job_type: jobType, payload: dict, job_id: str) -> str:
         "type": job_type.value,
         "payload": payload
     }
-    if job_type == jobType.GENERATE:
+    if job_type == jobType.GENERATE_S or job_type == jobType.GENERATE_W:
         redis_conn.rpush(settings.redis_gen_queue, json.dumps(job))
     else:
         redis_conn.rpush(settings.redis_preproc_queue, json.dumps(job))

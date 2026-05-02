@@ -1,9 +1,9 @@
 from __future__ import annotations
-
 import csv
 import json
 from pathlib import Path
 
+fixedVectors = None
 
 VECTOR_LENGTH = 512 * 18
 _MODULE_DIR = Path(__file__).resolve().parent
@@ -75,3 +75,8 @@ def load_vectors() -> list[dict]:
 		)
 
 	return ordered_vectors
+
+def get_fixed_vectors():
+    if fixedVectors is None:
+        raise RuntimeError("Vectors not loaded yet")
+    return fixedVectors
