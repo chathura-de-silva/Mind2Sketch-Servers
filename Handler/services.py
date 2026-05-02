@@ -6,7 +6,6 @@ class jobType(Enum):
 
 
 def random_generator(count: int):
-    # This function generates 'count' random images and returns them as a list
     images = []
     for _ in range(count):
         image = "random_image_data"
@@ -21,10 +20,10 @@ def mix_generator():
         images.append(image)
     return images
 
-def text_generator():
+def text_generator(prompt: str, count: int):
     # This function generates images based on text input and returns them as a list
     images = []
-    for _ in range(5):  # Assuming we generate 5 text-to-image results
-        image = "text_to_image_data"
+    for _ in range(count):
+        image = f"text_to_image_data_{prompt}"
         images.append(image)
     return images

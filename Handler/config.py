@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     aws_s3_endpoint_url: str = ""  # Optional, for custom S3-compatible services
 
     #Databse Settings
-    mongodb_url: str = ""
+    mongodb_uri: str = ""
     mongodb_db_name: str = ""
 
     # Automatically load from .env file
