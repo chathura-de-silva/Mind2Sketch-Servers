@@ -9,10 +9,13 @@ from vectors import VECTOR_LENGTH, get_fixed_vectors
 import asyncio
 import numpy as np
 
-async def random_generator(count: int) -> list[ImageResponse]:
-    
+
+async def random_generator(count: int) -> list[ImageResponse]: # multiple jobs per invocation, one job per image - pre processing queue
+
     async def create_one() -> ImageResponse:
-        vector = [0.0] * VECTOR_LENGTH # place holder vector to create a database entry.
+        vector = [
+            0.0
+        ] * VECTOR_LENGTH  # place holder vector to create a database entry.
 
         result = await database.db["images"].insert_one(
             {"vector": vector, "status": imageStatus.PENDING.value}
@@ -22,8 +25,10 @@ async def random_generator(count: int) -> list[ImageResponse]:
 
         enqueue_job(
             job_type=jobType.PRE_MAPPER_RAND,
-            payload={"seed":random.randint(-1000, 1000)},  # update the bounds as needed
-            job_id=image_id
+            payload={
+                "seed": random.randint(-1000, 1000)
+            },  # update the bounds as needed
+            job_id=image_id,
         )
 
         return ImageResponse(id=image_id)
@@ -40,33 +45,42 @@ def mix_generator():
     return images
 
 
-def text_generator(prompt: str, count: int):
-    # This function generates images based on text input and returns them as a list
-    images = []
-    for _ in range(count):
-        image = f"text_to_image_data_{prompt}"
-        images.append(image)
-    return images
+async def text_generator(prompt: str, count: int) -> list[ImageResponse]:  # one job per invocation - pre processing queue
+    vectors = [
+        {"vector": [0.0] * VECTOR_LENGTH, "status": imageStatus.PENDING.value}
+        for _ in range(count)
+    ]
+
+    result = await database.db["images"].insert_many(vectors)
+    image_ids = [str(id) for id in result.inserted_ids]
+
+    enqueue_job(
+        job_type=jobType.PRE_MAPPER_TEXT_INIT,
+        payload={"prompt": prompt, "image_ids": image_ids},
+        job_id=image_ids[0],  # Using the first image ID as the job ID for tracking
+    )
+
+    return [ImageResponse(id=image_id) for image_id in image_ids]
 
 
-async def slide_editor(image_id: str, vector_id: int, blend_ratio: float)-> str:
+async def slide_editor(image_id: str, vector_id: int, blend_ratio: float) -> str: #one job per invocation/image - generator queue
 
     image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
     if image_entry is None:
-        raise ValueError(f"Image with id {image_id} does not exist")   
+        raise ValueError(f"Image with id {image_id} does not exist")
     if image_entry["status"] != imageStatus.READY.value:
-        raise ValueError(f"Image with id {image_id} is not ready for editing. Current status: {image_entry['status']}")
-    
+        raise ValueError(
+            f"Image with id {image_id} is not ready for editing. Current status: {image_entry['status']}"
+        )
+
     original_vector = np.array(image_entry["vector"])
-    feature_vector= np.array(get_fixed_vectors()[vector_id]["vector"] )
+    feature_vector = np.array(get_fixed_vectors()[vector_id]["vector"])
     blended_vector = (original_vector + blend_ratio * feature_vector).tolist()
     result = await database.db["images"].insert_one(
         {"vector": blended_vector, "status": imageStatus.QUEUED.value}
     )
     new_id = str(result.inserted_id)
     enqueue_job(
-        job_type=jobType.GENERATE_W,
-        payload={"vector": blended_vector},
-        job_id=new_id
+        job_type=jobType.GENERATE_W, payload={"vector": blended_vector}, job_id=new_id
     )
     return new_id

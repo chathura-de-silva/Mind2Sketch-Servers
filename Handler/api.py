@@ -15,8 +15,8 @@ async def random_generate(body: RandomGenerateRequest):
 
 @router.post("/images/text-to-image", response_model=ImagesResponse)
 async def text_generate(body: TextToImageRequest):
-    images = text_generator(body.prompt, body.count)
-    return images
+    images = await text_generator(body.prompt, body.count)
+    return ImagesResponse(images=images, count=len(images))
 
 @router.get("/images/text-edit", response_model=ImagesResponse)
 async def text_edit(body: TextEditRequest):

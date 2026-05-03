@@ -28,12 +28,13 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-class jobType(Enum):
+class jobType(Enum): # for communicating the type of job to the workers via redis queues
     GENERATE_S = 1
     GENERATE_W = 2
     PRE_MIX = 3
-    PRE_MAPPER_TEXT = 4
-    PRE_MAPPER_RAND = 5
+    PRE_MAPPER_TEXT_INIT = 4
+    PRE_MAPPER_TEXT_EDIT = 5
+    PRE_MAPPER_RAND = 6
 
 
 class imageStatus(Enum):
@@ -43,7 +44,7 @@ class imageStatus(Enum):
     RUNNING = "running" # if its currently being processed picked from generation queue
     FAILED = "failed" # if its processing failed
 
-class ChangeType(Enum):
+class ChangeType(Enum): # for tracking the image history in the database
     TEXT_INIT   = "text_init"
     TEXT_EDIT   = "text_edit"
     SLIDE_EDIT  = "slide_edit"
