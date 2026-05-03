@@ -36,13 +36,32 @@ async def random_generator(count: int) -> list[ImageResponse]: # multiple jobs p
     return list(await asyncio.gather(*[create_one() for _ in range(count)]))
 
 
-def mix_generator():
-    # This function generates mixed images and returns them as a list
-    images = []
-    for _ in range(5):  # Assuming we generate 5 mixed images
-        image = "mixed_image_data"
-        images.append(image)
-    return images
+async def mix_generator( image_ids: list[str], count: int, weights: list[float]) -> list[ImageResponse]:
+    image_vectors = []
+    for image_id in image_ids:
+        image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
+        if image_entry is None:
+            raise ValueError(f"Image with id {image_id} does not exist")
+        if image_entry["status"] != imageStatus.READY.value:
+            raise ValueError(
+                f"Image with id {image_id} is not ready for mixing. Current status: {image_entry['status']}"
+            )
+        image_vectors.append(image_entry["vector"])
+    dummy_vectors = [
+        {"vector": [0.0] * VECTOR_LENGTH, "status": imageStatus.PENDING.value}
+        for _ in range(count)
+    ]
+
+    result = await database.db["images"].insert_many(dummy_vectors)
+
+    new_image_ids = [str(id) for id in result.inserted_ids]
+
+    enqueue_job(
+        job_type=jobType.PRE_MIX,
+        payload={"image_vectors": image_vectors, "weights": weights, "count": count, "new_image_ids": new_image_ids},
+        job_id= new_image_ids[0],  # Using the first image ID as the job ID for tracking
+    )
+    return [ImageResponse(id=image_id) for image_id in new_image_ids]
 
 
 async def text_generator(prompt: str, count: int) -> list[ImageResponse]:  # one job per invocation - pre processing queue

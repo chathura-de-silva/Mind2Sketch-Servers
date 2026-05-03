@@ -37,6 +37,13 @@ async def slide_edit(body: SlideGenerateRequest):
 
 @router.post("/images/mix", response_model=ImagesResponse)
 async def mix_generate(body: MixGenerateRequest):
-    images = mix_generator()
-    return images
+    if body.weights and len(body.weights) != len(body.image_ids):
+        raise HTTPException(status_code=422, detail="Length of weights must match length of image_ids")
+    try:
+        images = await mix_generator(body.image_ids, body.count, body.weights)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return ImagesResponse(images=images, count=len(images))
 
