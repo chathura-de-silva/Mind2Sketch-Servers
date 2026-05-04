@@ -1,6 +1,10 @@
 from enum import Enum
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class ImageFormat(Enum):
+    JPEG = "jpeg"
+    PNG = "png"
+    WEBP = "webp"
 
 class Settings(BaseSettings):
      # Redis Settings
@@ -15,6 +19,8 @@ class Settings(BaseSettings):
     aws_secret_access_key: str = ""
     s3_bucket_name: str = ""
     aws_default_region: str = "us-east-1"
+    s3_image_file_type: ImageFormat = ImageFormat.PNG
+    image_expiration_seconds: int = 3600 # how long the presigned upload url is valid for, in seconds
 
     aws_s3_endpoint_url: str = ""  # Optional, for custom S3-compatible services
 

@@ -22,7 +22,6 @@ async def get_image_by_id(image_id: str):
         url = generate_presigned_download_url(
             bucket_name=settings.s3_bucket_name,
             object_key=image_id,
-            expiration=settings.image_expiration_seconds,
         )
     except Exception as e:
         raise ConnectionError(f"Failed to generate presigned URL with S3: {str(e)}")
