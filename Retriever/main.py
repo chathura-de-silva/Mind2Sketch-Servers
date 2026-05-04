@@ -1,11 +1,16 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from database import database as dbClient
+from api import router
 
-app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+@asynccontextmanager
+async def lifespan(app: FastAPI):
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+    dbClient.connect()
+    yield
+    dbClient.close()
+
+
+app = FastAPI(lifespan=lifespan)
+app.include_router(router)

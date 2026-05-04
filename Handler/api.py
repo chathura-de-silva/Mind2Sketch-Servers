@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from services import mix_generator, random_generator, slide_editor, text_generator
+from services import mix_generator, random_generator, slide_editor, text_editor, text_generator
 from models import (
     ImageResponse, RandomGenerateRequest, SlideGenerateRequest, TextToImageRequest,
     MixGenerateRequest, TextEditRequest, ImagesResponse
@@ -18,10 +18,15 @@ async def text_generate(body: TextToImageRequest):
     images = await text_generator(body.prompt, body.count)
     return ImagesResponse(images=images, count=len(images))
 
-@router.get("/images/text-edit", response_model=ImagesResponse)
+@router.post("/images/text-edit", response_model=ImagesResponse)
 async def text_edit(body: TextEditRequest):
-    edited_images = ["edited_image_data"]
-    return edited_images
+    try:
+        edited_images = await text_editor(body.id, body.prompt, body.count)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return ImagesResponse(images=edited_images, count=len(edited_images))
 
 @router.post("/images/slide", response_model=ImageResponse) # returns only one image.
 async def slide_edit(body: SlideGenerateRequest):
