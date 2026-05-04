@@ -24,13 +24,13 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-class jobType(Enum): # for communicating the type of job to the workers via redis queues
-    GENERATE_S = 1
-    GENERATE_W = 2
-    PRE_MIX = 3
-    PRE_MAPPER_TEXT_INIT = 4
-    PRE_MAPPER_TEXT_EDIT = 5
-    PRE_MAPPER_RAND = 6
+class jobType(Enum):
+    GENERATE_S = "GENERATE_S"
+    GENERATE_W = "GENERATE_W"
+    PRE_MIX = "PRE_MIX"
+    PRE_MAPPER_TEXT_INIT = "PRE_MAPPER_TEXT_INIT"
+    PRE_MAPPER_TEXT_EDIT = "PRE_MAPPER_TEXT_EDIT"
+    PRE_MAPPER_RAND = "PRE_MAPPER_RAND"
 
 
 class imageStatus(Enum):
