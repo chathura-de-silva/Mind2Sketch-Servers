@@ -1,5 +1,4 @@
 import random
-
 from bson import ObjectId
 from config import imageStatus, jobType
 from database import database

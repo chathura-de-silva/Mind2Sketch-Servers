@@ -14,16 +14,6 @@ class Settings(BaseSettings):
     redis_gen_queue: str = ""
     redis_preproc_queue: str = ""
 
-    # S3 Settings
-    aws_access_key_id: str = ""
-    aws_secret_access_key: str = ""
-    s3_bucket_name: str = ""
-    aws_default_region: str = "us-east-1"
-    s3_image_file_type: ImageFormat = ImageFormat.PNG
-    image_expiration_seconds: int = 3600 # how long the presigned upload url is valid for, in seconds
-
-    aws_s3_endpoint_url: str = ""  # Optional, for custom S3-compatible services
-
     #Databse Settings
     mongodb_uri: str = ""
     mongodb_db_name: str = ""
