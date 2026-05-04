@@ -3,9 +3,8 @@ from vectors import load_vectors
 import vectors
 from contextlib import asynccontextmanager
 from database import database as dbClient
-from redisClient import redis_conn
 from api import router
-
+from celeryQueue import celery_app
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,7 +13,7 @@ async def lifespan(app: FastAPI):
     dbClient.connect()
     await dbClient.init_collections()
     yield
-    redis_conn.close()
+    celery_app.close()
     dbClient.close()
 
 

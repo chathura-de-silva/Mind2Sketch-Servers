@@ -1,10 +1,9 @@
 import random
-
 from bson import ObjectId
 from config import imageStatus, jobType
 from database import database
 from models import ImageResponse
-from redisClient import enqueue_job
+from celeryQueue import enqueue_job
 from vectors import VECTOR_LENGTH, get_fixed_vectors
 import asyncio
 import numpy as np

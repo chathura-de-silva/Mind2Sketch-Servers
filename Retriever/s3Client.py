@@ -9,13 +9,12 @@ s3 = boto3.client('s3',
                   )  # Automatically reads other config from env vars named acccording to boto3 standards.
 
 
-def generate_presigned_download_url(bucket_name, object_key, expiration=3600):
-    file_name = object_key + settings.image_file_extension
+def generate_presigned_download_url(bucket_name, object_key, expiration=settings.image_expiration_seconds):
     presigned_url = s3.generate_presigned_url(
         'get_object',
         Params={
             'Bucket': bucket_name,
-            'Key': file_name,
+            'Key': object_key,
         },
         ExpiresIn=expiration,
     )

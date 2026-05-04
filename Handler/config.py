@@ -1,6 +1,10 @@
 from enum import Enum
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class ImageFormat(Enum):
+    JPEG = "jpeg"
+    PNG = "png"
+    WEBP = "webp"
 
 class Settings(BaseSettings):
      # Redis Settings
@@ -9,14 +13,6 @@ class Settings(BaseSettings):
     redis_password: str = ""
     redis_gen_queue: str = ""
     redis_preproc_queue: str = ""
-
-    # S3 Settings
-    aws_access_key_id: str = ""
-    aws_secret_access_key: str = ""
-    s3_bucket_name: str = ""
-    aws_default_region: str = "us-east-1"
-
-    aws_s3_endpoint_url: str = ""  # Optional, for custom S3-compatible services
 
     #Databse Settings
     mongodb_uri: str = ""
@@ -28,13 +24,13 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-class jobType(Enum): # for communicating the type of job to the workers via redis queues
-    GENERATE_S = 1
-    GENERATE_W = 2
-    PRE_MIX = 3
-    PRE_MAPPER_TEXT_INIT = 4
-    PRE_MAPPER_TEXT_EDIT = 5
-    PRE_MAPPER_RAND = 6
+class jobType(Enum):
+    GENERATE_S = "GENERATE_S"
+    GENERATE_W = "GENERATE_W"
+    PRE_MIX = "PRE_MIX"
+    PRE_MAPPER_TEXT_INIT = "PRE_MAPPER_TEXT_INIT"
+    PRE_MAPPER_TEXT_EDIT = "PRE_MAPPER_TEXT_EDIT"
+    PRE_MAPPER_RAND = "PRE_MAPPER_RAND"
 
 
 class imageStatus(Enum):
