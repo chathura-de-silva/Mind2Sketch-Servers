@@ -40,6 +40,9 @@ class Model:
         print("Running ", len(flat_style_vector), "dimensional vector through the model...")
         if self.style_synthesis is None:
             raise RuntimeError("Style synthesis network is not loaded. Call load() before predict_s().")
+        
+        flat_style_vector = torch.tensor(flat_style_vector, dtype=torch.float32, device=self.device)
+        
         if flat_style_vector.ndim != 1:
             raise ValueError(
                 f"flat_style_vector must be 1-D, got shape {flat_style_vector.shape}"
