@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     redis_port: int = 0
     redis_password: str = ""
     redis_gen_queue: str = ""
+    redis_preproc_queue: str = ""
 
     model_config = SettingsConfigDict(env_file=".env")
 
