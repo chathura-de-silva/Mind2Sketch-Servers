@@ -99,7 +99,7 @@ async def slide_editor(image_id: str, vector_id: int, blend_ratio: float) -> str
     )
     new_id = str(result.inserted_id)
     enqueue_job(
-        job_type=jobType.GENERATE_W, payload={"vector": blended_vector}, job_id=new_id
+        job_type=jobType.GENERATE_S, payload={"vector": blended_vector}, job_id=new_id
     )
     return new_id
 

@@ -1,226 +1,232 @@
 {
   "files": [
     {
-      "id": 1,
-      "csv_file": "age_20.csv",
+      "id": 1,  
+      "csv_file": "test.csv",
       "range_low": 0.12,
       "range_high": 0.41
     },
     {
       "id": 2,
-      "csv_file": "age_30.csv",
+      "csv_file": "age_30_style_vector.csv",
       "range_low": 0.18,
       "range_high": 0.52
     },
     {
       "id": 3,
-      "csv_file": "age_40.csv",
+      "csv_file": "age_40_style_vector.csv",
       "range_low": 0.09,
       "range_high": 0.37
     },
     {
       "id": 4,
-      "csv_file": "age_50.csv",
+      "csv_file": "age_50_style_vector.csv",
       "range_low": 0.22,
       "range_high": 0.63
     },
     {
       "id": 5,
-      "csv_file": "age_60.csv",
+      "csv_file": "age_60_style_vector.csv",
       "range_low": 0.31,
       "range_high": 0.79
     },
     {
       "id": 6,
-      "csv_file": "eye_brown.csv",
+      "csv_file": "eye_brown_style_vector.csv",
       "range_low": 0.14,
       "range_high": 0.46
     },
     {
       "id": 7,
-      "csv_file": "eye_brows_black.csv",
+      "csv_file": "eye_brows_black_style_vector.csv",
       "range_low": 0.27,
       "range_high": 0.58
     },
     {
       "id": 8,
-      "csv_file": "eye_brows_curved.csv",
+      "csv_file": "eye_brows_curved_style_vector.csv",
       "range_low": 0.11,
       "range_high": 0.35
     },
     {
       "id": 9,
-      "csv_file": "eye_brows_straight.csv",
+      "csv_file": "eye_brows_straight_style_vector.csv",
       "range_low": 0.19,
       "range_high": 0.44
     },
     {
       "id": 10,
-      "csv_file": "eye_brows_thick.csv",
+      "csv_file": "eye_brows_thick_style_vector.csv",
       "range_low": 0.33,
       "range_high": 0.71
     },
     {
       "id": 11,
-      "csv_file": "eye_brows_thin.csv",
+      "csv_file": "eye_brows_thin_style_vector.csv",
       "range_low": 0.07,
       "range_high": 0.29
     },
     {
       "id": 12,
-      "csv_file": "eye_brows_white.csv",
+      "csv_file": "eye_brows_white_style_vector.csv",
       "range_low": 0.24,
       "range_high": 0.67
     },
     {
       "id": 13,
-      "csv_file": "eye_closed.csv",
+      "csv_file": "eye_closed_style_vector.csv",
       "range_low": 0.16,
       "range_high": 0.48
     },
     {
       "id": 14,
-      "csv_file": "eye_hazel.csv",
+      "csv_file": "eye_hazel_style_vector.csv",
       "range_low": 0.21,
       "range_high": 0.55
     },
     {
       "id": 15,
-      "csv_file": "eye_open.csv",
+      "csv_file": "eye_open_style_vector.csv",
       "range_low": 0.04,
       "range_high": 0.26
     },
     {
       "id": 16,
-      "csv_file": "hair_black.csv",
+      "csv_file": "hair_black_style_vector.csv",
       "range_low": 0.13,
       "range_high": 0.39
     },
     {
       "id": 17,
-      "csv_file": "hair_blonde.csv",
+      "csv_file": "hair_blonde_style_vector.csv",
       "range_low": 0.29,
       "range_high": 0.74
     },
     {
       "id": 18,
-      "csv_file": "hair_bold.csv",
+      "csv_file": "hair_bold_style_vector.csv",
       "range_low": 0.17,
       "range_high": 0.51
     },
     {
       "id": 19,
-      "csv_file": "hair_curly.csv",
+      "csv_file": "hair_curly_style_vector.csv",
       "range_low": 0.23,
       "range_high": 0.62
     },
     {
       "id": 20,
-      "csv_file": "hair_long.csv",
+      "csv_file": "hair_long_style_vector.csv",
       "range_low": 0.08,
       "range_high": 0.33
     },
     {
       "id": 21,
-      "csv_file": "hair_red.csv",
+      "csv_file": "hair_red_style_vector.csv",
       "range_low": 0.26,
       "range_high": 0.68
     },
     {
       "id": 22,
-      "csv_file": "hair_short.csv",
+      "csv_file": "hair_short_style_vector.csv",
       "range_low": 0.15,
       "range_high": 0.47
     },
     {
       "id": 23,
-      "csv_file": "hair_straight.csv",
+      "csv_file": "hair_straight_style_vector.csv",
       "range_low": 0.32,
       "range_high": 0.76
     },
     {
       "id": 24,
-      "csv_file": "hair_white.csv",
+      "csv_file": "hair_white_style_vector.csv",
       "range_low": 0.05,
       "range_high": 0.28
     },
     {
       "id": 25,
-      "csv_file": "mouth_bow_shaped.csv",
+      "csv_file": "mouth_bow_shaped_style_vector.csv",
       "range_low": 0.18,
       "range_high": 0.53
     },
     {
       "id": 26,
-      "csv_file": "mouth_full_shaped.csv",
+      "csv_file": "mouth_full_shaped_style_vector.csv",
       "range_low": 0.11,
       "range_high": 0.43
     },
     {
       "id": 27,
-      "csv_file": "mouth_thin_shaped.csv",
+      "csv_file": "mouth_thin_shaped_style_vector.csv",
       "range_low": 0.24,
       "range_high": 0.61
     },
     {
       "id": 28,
-      "csv_file": "nose_greek.csv",
+      "csv_file": "nose_greek_style_vector.csv",
       "range_low": 0.09,
       "range_high": 0.31
     },
     {
       "id": 29,
-      "csv_file": "nose_normal.csv",
+      "csv_file": "nose_normal_style_vector.csv",
       "range_low": 0.28,
       "range_high": 0.66
     },
     {
       "id": 30,
-      "csv_file": "skin_african.csv",
+      "csv_file": "skin_african_style_vector.csv",
       "range_low": 0.14,
       "range_high": 0.49
     },
     {
       "id": 31,
-      "csv_file": "skin_asian.csv",
+      "csv_file": "skin_asian_style_vector.csv",
       "range_low": 0.06,
       "range_high": 0.24
     },
     {
       "id": 32,
-      "csv_file": "skin_british.csv",
+      "csv_file": "skin_british_style_vector.csv",
       "range_low": 0.21,
       "range_high": 0.57
     },
     {
       "id": 33,
-      "csv_file": "skin_indian.csv",
+      "csv_file": "skin_indian_style_vector.csv",
       "range_low": 0.16,
       "range_high": 0.45
     },
     {
       "id": 34,
-      "csv_file": "skin_irish.csv",
+      "csv_file": "skin_irish_style_vector.csv",
       "range_low": 0.34,
       "range_high": 0.81
     },
     {
       "id": 35,
-      "csv_file": "skin_latin_american.csv",
+      "csv_file": "skin_latin_american_style_vector.csv",
       "range_low": 0.12,
       "range_high": 0.36
     },
     {
       "id": 36,
-      "csv_file": "spectacles_not_waer.csv",
+      "csv_file": "spectacles_not_waer_style_vector.csv",
       "range_low": 0.27,
       "range_high": 0.59
     },
     {
       "id": 37,
-      "csv_file": "spectacles_wear.csv",
+      "csv_file": "spectacles_wear_style_vector.csv",
       "range_low": 0.03,
       "range_high": 0.19
+    },
+    {
+      "id": 38,
+      "csv_file": "age_20_style_vector.csv",
+      "range_low": 0.12,
+      "range_high": 0.41
     }
   ]
 }

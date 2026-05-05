@@ -1,26 +1,50 @@
+from pathlib import Path
 import urllib.request
+import torch
+import dnnlib
+import legacy
+from . import networks
+from .helper import style_vector_deserializer, tensor_to_blob
+from typing import cast
 
+_MODULE_DIR = Path(__file__).resolve().parent
+NETWORK_PKL = str(_MODULE_DIR / "ffhq.pkl")
 
 class Model:
     def __init__(self):
         self.model = None
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.style_synthesis = None
+        self.affine_mapper = None
 
     def load(self):
-        print("Loading model...")
-       # loading model 
-        print("Model loaded.")
+        with dnnlib.util.open_url(NETWORK_PKL) as f:
+           network = cast(dict, legacy.load_network_pkl(f))
+           G = network["G_ema"].to(self.device)
+        self.style_synthesis = networks.StyleSynthesisNetwork(G.synthesis).to(self.device)
+
+        affines = []
+        for name, module in G.synthesis.named_modules():
+            if hasattr(module, "affine"):
+                affines.append(module.affine)
+
+        self.affine_mapper = networks.StyleAffineMapper(G.mapping, affines).to(self.device)
         return
 
-    def predict_w(self, latent_vector):  # Dummy function to simulate prediction, replace with actual model inference logic
+    def predict_w(self, latent_vector):  # Inference is only done with Style vector as of now. Dummy function to simulate prediction with W space, replace with actual model inference logic
        print("Running ", len(latent_vector), "dimensional vector through the model...")
        hex_data = urllib.request.urlopen(f"https://robohash.org/{''.join(str(x) for x in latent_vector[:2])}.png").read().hex().upper()
        dummy_blob = bytes.fromhex(f"{hex_data}")
        return dummy_blob
 
-    def predict_s(self, latent_vector):  # Dummy function to simulate prediction, replace with actual model inference logic (for style space generation)
-       print("Running ", len(latent_vector), "dimensional vector through the model...")
-       hex_data = urllib.request.urlopen(f"https://robohash.org/{''.join(str(x) for x in latent_vector[:2])}.png").read().hex().upper()
-       dummy_blob = bytes.fromhex(f"{hex_data}")
-       return dummy_blob
+    def predict_s(self, flat_style_vector):  
+       if self.style_synthesis is None or self.affine_mapper is None:
+           raise ValueError("Affine Mapper or Generator model not loaded yet!")
+       
+       styles = style_vector_deserializer(flat_style_vector, device=self.device)
+      
+       with torch.no_grad():
+              image_tensor = self.style_synthesis(styles)
+       return tensor_to_blob(image_tensor)
 
 model_manager = Model()
