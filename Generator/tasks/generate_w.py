@@ -1,14 +1,12 @@
 from celeryQueue import celery_app
 from config import jobType, settings, ImageStatus
-from model.model import model_manager
+from model import model_manager
 from services.database import update_image_status
 from services.s3Client import upload_to_s3
 
 
 @celery_app.task(name=jobType.GENERATE_W.value, bind=True, max_retries=2)
-def handle_generate_w(self, **kwargs):   
-    # Not implemented. Following is the boilerplate. Currently the synthesis service only supports generation from style space.  
-    return
+def handle_generate_w(self, **kwargs):
     job_id = self.request.id.replace("job_", "")
     try:
         update_image_status(job_id, ImageStatus.RUNNING.value)

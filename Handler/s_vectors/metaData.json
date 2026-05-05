@@ -1,0 +1,10 @@
+{
+  "files": [
+    {
+      "id": 0,
+      "csv_file": "test.csv",
+      "range_low": 0.12,
+      "range_high": 0.41
+    }
+  ]
+}

@@ -5,9 +5,9 @@ from pathlib import Path
 
 fixedVectors = None
 
-VECTOR_LENGTH = 512 * 18
+VECTOR_LENGTH = 9088
 _MODULE_DIR = Path(__file__).resolve().parent
-_VECTORS_DIR = _MODULE_DIR / "vectors"
+_VECTORS_DIR = _MODULE_DIR / "s_vectors"
 _METADATA_PATH = _VECTORS_DIR / "metaData.json"
 
 

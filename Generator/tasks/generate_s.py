@@ -1,6 +1,6 @@
 from celeryQueue import celery_app
 from config import jobType
-from model.model import model_manager
+from model import model_manager
 from services.database import update_image_status
 from services.s3Client import upload_to_s3
 from config import settings, ImageStatus
@@ -8,7 +8,6 @@ from config import settings, ImageStatus
 @celery_app.task(name=jobType.GENERATE_S.value, bind=True, max_retries=2)
 def handle_generate_s(self, **kwargs):
     job_id = self.request.id.replace("job_", "")
-    # remove the job_ prefix to get the actual image_id
     try:
        update_image_status(job_id, ImageStatus.RUNNING.value)
        style_vector = kwargs.get("vector", [])
