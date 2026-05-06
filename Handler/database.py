@@ -23,7 +23,7 @@ class Database:
                 validator={
                     "$jsonSchema": {
                         "bsonType": "object",
-                        "required": ["vector", "status"],
+                        "required": ["status"],
                         "properties": {
                             "_id": {"bsonType": "objectId"},
                             "vector": {
