@@ -12,3 +12,9 @@ def update_image_status(image_id: str, status: str):
         {"_id": ObjectId(image_id)},
         {"$set": {"status": status}}
     )
+
+def update_image_vector_by_id(image_id: str, vector: list):
+    images.update_one(
+        {"_id": ObjectId(image_id)},
+        {"$set": {"vector": vector}}
+    )

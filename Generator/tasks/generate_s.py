@@ -1,7 +1,7 @@
 from celeryQueue import celery_app
 from config import jobType
 from model.model import model_manager
-from services.database import update_image_status
+from services.database import update_image_status, update_image_vector_by_id
 from services.s3Client import upload_to_s3
 from config import settings, ImageStatus
 
@@ -19,6 +19,7 @@ def handle_generate_s(self, **kwargs):
        image = model_manager.predict_s(style_vector)
        upload_to_s3(settings.s3_bucket_name, image,job_id)
        update_image_status(job_id, ImageStatus.READY.value)
+       update_image_vector_by_id(job_id, style_vector)
 
     except Exception as exc:
         update_image_status(job_id, ImageStatus.FAILED.value)
