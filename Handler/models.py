@@ -25,7 +25,7 @@ class TextEditRequest(BaseModel):
 class SlideGenerateRequest(BaseModel):
      id: str = Field(..., description="ID of the starter image")
      vector_id: int = Field(..., ge=0, description="feature vector number for slide styles")
-     blend_ratio: float = Field(default=0.5, ge=0.0, le=1.0)
+     blend_ratio: float = Field(default=4, ge=0.0, le=6.0)
      
 # --- Response Models ---
 
