@@ -4,7 +4,7 @@ from config import imageStatus, jobType
 from database import database
 from models import ImageResponse
 from celeryQueue import enqueue_job
-from vectors import VECTOR_LENGTH, get_fixed_vectors
+from vectors import get_fixed_vectors
 import asyncio
 import numpy as np
 
@@ -12,12 +12,8 @@ import numpy as np
 async def random_generator(count: int) -> list[ImageResponse]: # multiple jobs per invocation, one job per image - pre processing queue
 
     async def create_one() -> ImageResponse:
-        vector = [
-            0.0
-        ] * VECTOR_LENGTH  # place holder vector to create a database entry.
-
         result = await database.db["images"].insert_one(
-            {"vector": vector, "status": imageStatus.PENDING.value}
+            { "status": imageStatus.PENDING.value}
         )
 
         image_id = str(result.inserted_id)
@@ -46,12 +42,12 @@ async def mix_generator( image_ids: list[str], count: int, weights: list[float])
                 f"Image with id {image_id} is not ready for mixing. Current status: {image_entry['status']}"
             )
         image_vectors.append(image_entry["vector"])
-    dummy_vectors = [
-        {"vector": [0.0] * VECTOR_LENGTH, "status": imageStatus.PENDING.value}
+    status_updates = [
+        { "status": imageStatus.PENDING.value}
         for _ in range(count)
     ]
 
-    result = await database.db["images"].insert_many(dummy_vectors)
+    result = await database.db["images"].insert_many(status_updates)
 
     new_image_ids = [str(id) for id in result.inserted_ids]
 
@@ -64,12 +60,12 @@ async def mix_generator( image_ids: list[str], count: int, weights: list[float])
 
 
 async def text_generator(prompt: str, count: int) -> list[ImageResponse]:  # one job per invocation - pre processing queue
-    vectors = [
-        {"vector": [0.0] * VECTOR_LENGTH, "status": imageStatus.PENDING.value}
+    status_updates = [
+        {"status": imageStatus.PENDING.value}
         for _ in range(count)
     ]
 
-    result = await database.db["images"].insert_many(vectors)
+    result = await database.db["images"].insert_many(status_updates)
     image_ids = [str(id) for id in result.inserted_ids]
 
     enqueue_job(
@@ -115,12 +111,12 @@ async def text_editor(image_id: str, prompt: str, count: int) -> list[ImageRespo
 
     original_vector = image_entry["vector"]
 
-    dummy_vectors = [
-        {"vector": [0.0] * VECTOR_LENGTH, "status": imageStatus.PENDING.value}
+    status_updates = [
+        {"status": imageStatus.PENDING.value}
         for _ in range(count)
     ]
 
-    result = await database.db["images"].insert_many(dummy_vectors)
+    result = await database.db["images"].insert_many(status_updates)
 
     new_image_ids = [str(id) for id in result.inserted_ids]
 
