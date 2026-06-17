@@ -77,7 +77,7 @@ async def text_generator(prompt: str, count: int) -> list[ImageResponse]:  # one
     return [ImageResponse(id=image_id) for image_id in image_ids]
 
 
-async def slide_editor(image_id: str, vector_id: int, blend_ratio: float) -> str: #one job per invocation/image - generator queue
+async def slide_editor(image_id: str, vector_ids: list[int], blend_ratios: list[float]) -> str: #one job per invocation/image - generator queue
 
     image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
     if image_entry is None:
@@ -87,9 +87,10 @@ async def slide_editor(image_id: str, vector_id: int, blend_ratio: float) -> str
             f"Image with id {image_id} is not ready for editing. Current status: {image_entry['status']}"
         )
 
-    original_vector = np.array(image_entry["vector"])
-    feature_vector = np.array(get_fixed_vectors()[vector_id]["vector"])
-    blended_vector = (original_vector + blend_ratio * feature_vector).tolist()
+    original_vector = np.array(image_entry["vector"],dtype=float)
+    feature_vectors = np.array([get_fixed_vectors()[vid]["vector"] for vid in vector_ids], dtype=float)
+    blended_vector = (original_vector + np.array(blend_ratios,dtype=float)@feature_vectors).tolist()
+
     result = await database.db["images"].insert_one(
         {"vector": blended_vector, "status": imageStatus.QUEUED.value}
     )

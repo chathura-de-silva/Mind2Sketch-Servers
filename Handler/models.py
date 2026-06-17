@@ -24,14 +24,14 @@ class TextEditRequest(BaseModel):
     blend_ratio: float = Field(default=4.0, ge=0.0, le=6.0, description="Strength of the edit")
 
 class SlideGenerateRequest(BaseModel):
-     id: str = Field(..., description="ID of the starter image")
-     vector_id: int = Field(..., ge=0, description="feature vector number for slide styles")
-     blend_ratio: float = Field(default=4, ge=0.0, le=6.0)
-     
+    id: ImageId = Field(..., description="ID of the starter image")
+    vector_ids: List[Annotated[int, Field(ge=0)]] = Field( ..., description="Feature vector numbers for slide styles", min_length=1, max_length=3)
+    blend_ratios: List[Annotated[float, Field(ge=0.0, le=6.0)]] = Field(default_factory=list, min_length=1, max_length=3)
+
 # --- Response Models ---
 
 class ImageResponse(BaseModel):
-    id: str
+    id: ImageId
 
 class ImagesResponse(BaseModel):
     images: List[ImageResponse]
