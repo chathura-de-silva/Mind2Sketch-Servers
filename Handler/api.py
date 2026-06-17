@@ -21,7 +21,7 @@ async def text_generate(body: TextToImageRequest):
 @router.post("/images/text-edit", response_model=ImagesResponse)
 async def text_edit(body: TextEditRequest):
     try:
-        edited_images = await text_editor(body.id, body.prompt, body.count)
+        edited_images = await text_editor(body.id, body.prompt, body.count, body.blend_ratio)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except RuntimeError as e:

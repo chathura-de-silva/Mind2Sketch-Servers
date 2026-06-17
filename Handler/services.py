@@ -69,8 +69,8 @@ async def text_generator(prompt: str, count: int) -> list[ImageResponse]:  # one
     image_ids = [str(id) for id in result.inserted_ids]
 
     enqueue_job(
-        job_type=jobType.PRE_MAPPER_TEXT_INIT,
-        payload={"prompt": prompt, "image_ids": image_ids},
+        job_type=jobType.PRE_MAPPER_TEXT,
+        payload={"prompt": prompt, "new_image_ids": image_ids, "count": count},
         job_id=image_ids[0],  # Using the first image ID as the job ID for tracking
     )
 
@@ -99,7 +99,7 @@ async def slide_editor(image_id: str, vector_id: int, blend_ratio: float) -> str
     )
     return new_id
 
-async def text_editor(image_id: str, prompt: str, count: int) -> list[ImageResponse]: #one job per invocation/image - pre processing queue
+async def text_editor(image_id: str, prompt: str, count: int, blend_ratio: float) -> list[ImageResponse]: #one job per invocation/image - pre processing queue
 
     image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
     if image_entry is None:
@@ -121,8 +121,8 @@ async def text_editor(image_id: str, prompt: str, count: int) -> list[ImageRespo
     new_image_ids = [str(id) for id in result.inserted_ids]
 
     enqueue_job(
-        job_type=jobType.PRE_MAPPER_TEXT_EDIT,
-        payload={"prompt": prompt, "original_vector": original_vector, "new_image_ids": new_image_ids, "count": count},
+        job_type=jobType.PRE_MAPPER_TEXT,
+        payload={"prompt": prompt, "original_vector": original_vector, "blend_ratio": blend_ratio, "new_image_ids": new_image_ids, "count": count},
         job_id=new_image_ids[0],  # Using the first image ID as the job ID for tracking
     )
 
