@@ -1,5 +1,21 @@
 import torch
 
+
+class Clip2StyleMapper(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = torch.nn.Sequential(
+            torch.nn.Linear(512, 1024),
+            torch.nn.ReLU(),
+            torch.nn.Linear(1024, 2048),
+            torch.nn.ReLU(),
+            torch.nn.Linear(2048, 6048),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
 class StyleAffineMapper(torch.nn.Module):
     def __init__(self, mapping, affines):
         super().__init__()
