@@ -30,10 +30,13 @@ async def text_edit(body: TextEditRequest):
 
 @router.post("/images/slide", response_model=ImageResponse) # returns only one image.
 async def slide_edit(body: SlideGenerateRequest):
-    if body.vector_id > len(get_fixed_vectors()) - 1:
+    feature_count = len(get_fixed_vectors())
+    if any(vector_id > feature_count - 1 for vector_id in body.vector_ids):
         raise HTTPException(status_code=422, detail=f"vector_id must be <= {len(get_fixed_vectors()) - 1}")
+    if len(body.vector_ids) != len(body.blend_ratios):
+        raise HTTPException(status_code=422, detail="Each slider edit should specify a vector_id and a corresponding blend_ratio. The lengths of vector_ids and blend_ratios doesn't match!")
     try:
-        new_image_id = await slide_editor(body.id, body.vector_id, body.blend_ratio)
+        new_image_id = await slide_editor(body.id, body.vector_ids, body.blend_ratios)
         return ImageResponse(id=new_image_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
