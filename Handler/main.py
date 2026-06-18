@@ -12,6 +12,7 @@ async def lifespan(app: FastAPI):
     vectors.fixedVectors = load_vectors()
     dbClient.connect()
     await dbClient.init_collections()
+    await vectors.load_face_vectors()
     yield
     celery_app.close()
     dbClient.close()

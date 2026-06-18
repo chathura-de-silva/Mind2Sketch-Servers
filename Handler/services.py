@@ -100,6 +100,7 @@ async def slide_editor(image_id: str, vector_ids: list[int], blend_ratios: list[
     )
     return new_id
 
+
 async def text_editor(image_id: str, prompt: str, count: int, blend_ratio: float) -> list[ImageResponse]: #one job per invocation/image - pre processing queue
 
     image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
