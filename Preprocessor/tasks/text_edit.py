@@ -11,14 +11,17 @@ def text_edit(self, **kwargs):
     """handles both text-based initial generation and text-based editing.
     For generation from text, ground_vector will be set to neutral vector value and lambda_val will be set to 4.0(both are not expected inside job metadata) to create more relevant initial images.
     For editing existing images, ground_vector(original_vector) and lambda_val(blend_ratio) both are expected to be provided as job metadata.
-    """
-    job_id = self.request.id.replace("job_", "")
+    """ 
     try:
         text_prompt = kwargs.get("prompt")
         if text_prompt is None:
             raise ValueError("text_prompt is required.")
 
-        style_direction = model_manager.text_to_style_direction(text_prompt)
+        try:
+            negative_prompt = model_manager.get_negative_prompt(text_prompt)
+        except Exception:
+            negative_prompt = None
+        style_direction = model_manager.text_to_style_direction(text_prompt, negative_prompt=negative_prompt)
         count = kwargs.get("count", 1)
         new_image_ids = kwargs.get("new_image_ids")
         if new_image_ids is None or len(new_image_ids) != count:
