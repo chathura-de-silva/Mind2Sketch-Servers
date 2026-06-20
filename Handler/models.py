@@ -20,6 +20,7 @@ class MixGenerateRequest(BaseModel):
 class TextEditRequest(BaseModel):
     id: ImageId = Field(..., description="ID of image to edit")
     prompt: str = Field(..., min_length=1, max_length=500)
+    negative_prompt: str = Field(..., max_length=500, description="Negative prompt; auto-generated from prompt if empty")
     count: int = Field(default=1, gt=0, le=25, description="Number of edited images to generate")
     blend_ratio: float = Field(default=4.0, ge=0.0, le=6.0, description="Strength of the edit")
 

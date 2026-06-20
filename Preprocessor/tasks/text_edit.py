@@ -17,10 +17,12 @@ def text_edit(self, **kwargs):
         if text_prompt is None:
             raise ValueError("text_prompt is required.")
 
-        try:
-            negative_prompt = model_manager.get_negative_prompt(text_prompt)
-        except Exception:
-            negative_prompt = None
+        negative_prompt = kwargs.get("negative_prompt")
+        if negative_prompt == "":
+            try:
+                negative_prompt = model_manager.get_negative_prompt(text_prompt)
+            except Exception:
+                negative_prompt = None
         style_direction = model_manager.text_to_style_direction(text_prompt, negative_prompt=negative_prompt)
         count = kwargs.get("count", 1)
         new_image_ids = kwargs.get("new_image_ids")
