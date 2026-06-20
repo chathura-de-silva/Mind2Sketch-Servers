@@ -71,6 +71,7 @@ class Model:
 
     def get_negative_prompt(self, positive_prompt: str) -> str | None:
         response = chat(
+            think=False,
             model=OLAMA_MODEL_NAME,
             messages=[
                 {"role": "system", "content": LLM_SYSTEM_PROMPT},

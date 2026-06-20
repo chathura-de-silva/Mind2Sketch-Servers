@@ -20,7 +20,7 @@ class jobType(Enum):
     PRE_MAPPER_TEXT = "PRE_MAPPER_TEXT"
     PRE_MAPPER_RAND = "PRE_MAPPER_RAND"
 
-OLAMA_MODEL_NAME = "gemma3:1b"
+OLAMA_MODEL_NAME = 'gemma4:e2b-it-q4_K_M'
 LLM_SYSTEM_PROMPT = """You are an expert at semantic inversion of facial descriptions.
 
 Your task is to read a facial description and generate a "'semantically' negative prompt" that describes the semantic opposite of the facial attributes. This negative prompt will be used for contrastive latent direction estimation.
