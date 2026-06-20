@@ -8,7 +8,7 @@ from .helper import style_vector_deserializer, tensor_to_blob
 from typing import cast
 
 _MODULE_DIR = Path(__file__).resolve().parent
-NETWORK_PKL = str(_MODULE_DIR / "ffhq.pkl")
+NETWORK_PKL = str(_MODULE_DIR / "ffsl.pkl")
 
 class Model:
     def __init__(self):

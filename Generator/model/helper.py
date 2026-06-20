@@ -4,8 +4,8 @@ from PIL import Image
 import io
 from config import settings
 
-STYLE_SHAPES = [512] * 15 + [256] * 3 + [128] * 3 + [64] * 3 + [32] * 2
-NUM_LAYERS = 26
+STYLE_SHAPES = [512] * 12 + [256] * 3 + [128] * 3 + [64] * 2
+NUM_LAYERS = 20
 
 def tensor_to_blob(img_tensor: torch.Tensor, fmt: str = settings.image_content_type.value) -> bytes:
   
@@ -24,11 +24,9 @@ def style_vector_deserializer(
 ) -> list:
     start=0
     style_direction=[]
-
-    style_shapes = [512] * 15 + [256] * 3 + [128] * 3 + [64] * 3 + [32] * 2
     
-    for i in range(26):
-        layer_len=style_shapes[i]
+    for i in range(20):
+        layer_len=STYLE_SHAPES[i]
         end=start+layer_len
         style=style_direction_flattened[start:end]
         start=end
