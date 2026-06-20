@@ -6,10 +6,11 @@ import legacy
 from . import networks
 from typing import cast
 import numpy as np
+import copy
 
 _MODULE_DIR = Path(__file__).resolve().parent
-NETWORK_PKL = str(_MODULE_DIR / "ffhq.pkl")
-CLIP2STYLE_WEIGHTS = str(_MODULE_DIR / "mapping_network.pth")
+NETWORK_PKL = str(_MODULE_DIR / "ffsl.pkl")
+CLIP2STYLE_MATRIX = str(_MODULE_DIR / "fs3_256.npy")
 CLIP_NEUTRAL_TEXT = "a face"
 
 
@@ -37,11 +38,7 @@ class Model:
         self.clip_model, _ = clip.load("ViT-B/32", device=self.device, jit=False)
         self.clip_model.eval()
 
-        self.clip2style_mapper = networks.Clip2StyleMapper().to(self.device)
-        self.clip2style_mapper.load_state_dict(
-            torch.load(CLIP2STYLE_WEIGHTS, map_location=self.device)
-        )
-        self.clip2style_mapper.eval()
+        self.clip2style_mapper = np.load(CLIP2STYLE_MATRIX)
 
         with torch.no_grad():
             tokens = clip.tokenize([CLIP_NEUTRAL_TEXT]).to(self.device)
@@ -65,12 +62,30 @@ class Model:
 
     def text_to_style_direction(self, text_prompt: str) -> list:
         
+        def get_style_direction(clip2styles_matrix,clip_direction,top_styles):
+            '''get the direction in the style space (boundary) with the precomputed clip2styles matrix.'''
+            style_direction_flattened=np.dot(clip2styles_matrix,clip_direction[0])
+            
+            style_direction_flattened_2=copy.copy(style_direction_flattened)
+            threshold_idx = np.argsort(np.abs(style_direction_flattened))[:-int(top_styles)]
+            select = np.zeros(len(style_direction_flattened), dtype=bool)
+            select[threshold_idx] = True
+
+            style_direction_flattened_2[select] = 0
+            tmp=np.abs(style_direction_flattened_2).max()
+            print('max value before normalization:',tmp)
+            style_direction_flattened_2/= (tmp + 1e-5)
+            
+            style_direction=split_s(style_direction_flattened_2)
+            print('num of channels being manipulated:',top_styles)
+            return style_direction
+
         def split_s(flat_style_vector):
              start = 0
              style_direction = []
-             mindexs = [0, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 20, 21, 23, 24]
-             style_shapes = [512] * 15 + [256] * 3 + [128] * 3 + [64] * 3 + [32] * 2
-             for i in range(26):
+             mindexs = [0, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15]
+             style_shapes = [512] * 12 + [256] * 3 + [128] * 3 + [64] * 2
+             for i in range(20):
                 if i in mindexs:
                       layer_len = style_shapes[i]
                       end = start + layer_len
@@ -95,7 +110,7 @@ class Model:
             direction = target - neutral
             direction = direction / (direction.norm(dim=1, keepdim=True) + 1e-8)
 
-            style_vector = self.clip2style_mapper(direction)
+            style_vector = get_style_direction(self.clip2style_mapper,direction,100)
             flat_style_vector = style_vector.flatten().cpu().detach().numpy().tolist()
             final_style_vector = split_s(flat_style_vector)
         return final_style_vector.detach().cpu().numpy().tolist()
