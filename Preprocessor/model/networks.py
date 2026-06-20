@@ -34,7 +34,7 @@ class StyleAffineMapper(torch.nn.Module):
         # Rest of the blocks
         w_idx = 2
         affine_idx = 2
-        for _ in range(8):
+        for _ in range(6):
             # conv0
             outputs.append(self.affines[affine_idx](w[:, w_idx]))
             # conv1
