@@ -6,7 +6,7 @@ from initialImageSeeder import enqueue_face_generations, create_and_seed_initial
 
 fixedVectors = None
 
-VECTOR_LENGTH = 9088
+VECTOR_LENGTH = 7424
 _MODULE_DIR = Path(__file__).resolve().parent
 _VECTORS_DIR = _MODULE_DIR / "vectors"
 _FEATURE_DIRECTIONS_DIR = _VECTORS_DIR / "featureDirections"
