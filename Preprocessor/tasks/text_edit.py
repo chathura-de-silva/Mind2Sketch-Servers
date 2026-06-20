@@ -3,7 +3,7 @@ from celeryQueue import celery_app, enqueue_job
 from config import jobType
 from model.model import model_manager
 
-_NOISE_SCALE = 0.05
+_NOISE_SCALE = 1.0
 
 
 @celery_app.task(name=jobType.PRE_MAPPER_TEXT.value, bind=True, max_retries=2)
