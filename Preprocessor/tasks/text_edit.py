@@ -3,7 +3,7 @@ from celeryQueue import celery_app, enqueue_job
 from config import jobType
 from model.model import model_manager
 
-_NOISE_SCALE = 0.05
+_NOISE_SCALE = 1.0
 
 
 @celery_app.task(name=jobType.PRE_MAPPER_TEXT.value, bind=True, max_retries=2)
@@ -17,10 +17,12 @@ def text_edit(self, **kwargs):
         if text_prompt is None:
             raise ValueError("text_prompt is required.")
 
-        try:
-            negative_prompt = model_manager.get_negative_prompt(text_prompt)
-        except Exception:
-            negative_prompt = None
+        negative_prompt = kwargs.get("negative_prompt")
+        if negative_prompt is None:
+            try:
+                negative_prompt = model_manager.get_negative_prompt(text_prompt)
+            except Exception:
+                negative_prompt = None
         style_direction = model_manager.text_to_style_direction(text_prompt, negative_prompt=negative_prompt)
         count = kwargs.get("count", 1)
         new_image_ids = kwargs.get("new_image_ids")

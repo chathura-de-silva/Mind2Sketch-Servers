@@ -1,4 +1,5 @@
 import random
+from typing import Optional
 from bson import ObjectId
 from config import imageStatus, jobType
 from database import database
@@ -101,7 +102,7 @@ async def slide_editor(image_id: str, vector_ids: list[int], blend_ratios: list[
     return new_id
 
 
-async def text_editor(image_id: str, prompt: str, count: int, blend_ratio: float) -> list[ImageResponse]: #one job per invocation/image - pre processing queue
+async def text_editor(image_id: str, prompt: str, count: int, blend_ratio: float, negative_prompt: Optional[str]) -> list[ImageResponse]: #one job per invocation/image - pre processing queue
 
     image_entry = await database.db["images"].find_one({"_id": ObjectId(image_id)})
     if image_entry is None:
@@ -124,7 +125,7 @@ async def text_editor(image_id: str, prompt: str, count: int, blend_ratio: float
 
     enqueue_job(
         job_type=jobType.PRE_MAPPER_TEXT,
-        payload={"prompt": prompt, "original_vector": original_vector, "blend_ratio": blend_ratio, "new_image_ids": new_image_ids, "count": count},
+        payload={"prompt": prompt, "negative_prompt": negative_prompt, "original_vector": original_vector, "blend_ratio": blend_ratio, "new_image_ids": new_image_ids, "count": count},
         job_id=new_image_ids[0],  # Using the first image ID as the job ID for tracking
     )
 
