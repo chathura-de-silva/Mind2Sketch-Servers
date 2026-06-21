@@ -22,3 +22,8 @@ class InitialFaceItem(BaseModel):
 
 class InitialFacesResponse(BaseModel):
     items: List[InitialFaceItem]
+
+
+class UploadUrlResponse(BaseModel):
+    upload_url: str = Field(..., description="Presigned URL for uploading the image.")
+    download_url: str = Field(..., description="Presigned URL for downloading the image after upload.")
