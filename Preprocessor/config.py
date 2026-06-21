@@ -19,6 +19,7 @@ class jobType(Enum):
     PRE_MIX = "PRE_MIX"
     PRE_MAPPER_TEXT = "PRE_MAPPER_TEXT"
     PRE_MAPPER_RAND = "PRE_MAPPER_RAND"
+    PRE_PROJECT_E4E = "PRE_PROJECT_E4E"
 
 OLAMA_MODEL_NAME = 'gemma4:e2b-it-q4_K_M'
 LLM_SYSTEM_PROMPT = """You are an expert at semantic inversion of facial descriptions.

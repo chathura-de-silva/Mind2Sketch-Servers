@@ -1,6 +1,9 @@
 from pathlib import Path
+import sys
 import torch
 import clip
+import torchvision.transforms as transforms
+from PIL import Image
 from config import LLM_SYSTEM_PROMPT,OLAMA_MODEL_NAME
 import dnnlib
 import legacy
@@ -12,6 +15,8 @@ from ollama import chat
 _MODULE_DIR = Path(__file__).resolve().parent
 NETWORK_PKL = str(_MODULE_DIR / "ffhq.pkl")
 CLIP2STYLE_WEIGHTS = str(_MODULE_DIR / "mapping_network.pth")
+E4E_MODEL_PATH = str(_MODULE_DIR / "e4e_ffhq_encode.pt")
+E4E_REPO_PATH = str(_MODULE_DIR.parent / "encoder4editing")
 CLIP_NEUTRAL_TEXT = "a face"
 
 
@@ -23,6 +28,8 @@ class Model:
         self.clip2style_mapper = None
         self.neutral_clip_embedding = None
         self.neutral_style_vector = None
+        self.e4e_net = None
+        self.e4e_transforms = None
 
     def load(self):
         with dnnlib.util.open_url(NETWORK_PKL) as f:
@@ -52,6 +59,20 @@ class Model:
             self.neutral_clip_embedding = self.clip_model.encode_text(tokens).float()
 
         self.neutral_style_vector = self.z_to_s(torch.zeros(1, 512, device=self.device))
+
+        # Load E4E model for projection
+        sys.path.insert(0, E4E_REPO_PATH)
+        if not Path(E4E_MODEL_PATH).exists():
+            raise FileNotFoundError(f"E4E  weight file not found at {E4E_MODEL_PATH}. Please ensure the model file exists.")
+        from utils.model_utils import setup_model as e4e_setup_model
+        self.e4e_net, _ = e4e_setup_model(E4E_MODEL_PATH, str(self.device))
+        
+        self.e4e_net.eval()
+        self.e4e_transforms = transforms.Compose([
+            transforms.Resize((256, 256)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
+        ])
 
     def random_z_to_s(self, seed):
         g = torch.Generator(device=self.device)
@@ -126,6 +147,31 @@ class Model:
             flat_style_vector = style_vector.flatten().cpu().detach().numpy().tolist()
             final_style_vector = split_s(flat_style_vector)
         return final_style_vector.detach().cpu().numpy().tolist()
+    
+    def project_e4e(self, image: Image.Image) -> torch.Tensor:
+        if self.e4e_net is None:
+            raise ValueError("E4E model not loaded yet!")
 
+        x = self.e4e_transforms(image).unsqueeze(0).to(self.device).float()
+
+        with torch.no_grad():
+            codes = self.e4e_net.encoder(x)
+            if self.e4e_net.opts.start_from_latent_avg:
+                if codes.ndim == 2:
+                    codes = codes + self.e4e_net.latent_avg.repeat(codes.shape[0], 1, 1)[:, 0, :]
+                else:
+                    codes = codes + self.e4e_net.latent_avg.repeat(codes.shape[0], 1, 1)
+
+        return codes  # [1, 18, 512]
+
+    def w_plus_to_s(self, w_plus: torch.Tensor) -> list:
+        # This is being used by the E4E Projection, to map it's W+ output to the Style Space.
+        #  w_plus: [1, 18, 512] 
+        if self.affine_mapper is None:
+            raise ValueError("Affine Mapper model not loaded yet!")
+        with torch.no_grad():
+            styles = self.affine_mapper.apply_affines(w_plus.to(self.device))
+            flat = torch.cat([s.flatten() for s in styles], dim=0).cpu().numpy()
+        return flat.tolist()
 
 model_manager = Model()

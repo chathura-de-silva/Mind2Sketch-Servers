@@ -30,6 +30,7 @@ class jobType(Enum):
     PRE_MIX = "PRE_MIX"
     PRE_MAPPER_TEXT = "PRE_MAPPER_TEXT"
     PRE_MAPPER_RAND = "PRE_MAPPER_RAND"
+    PRE_PROJECT_E4E = "PRE_PROJECT_E4E"
 
 
 class imageStatus(Enum):

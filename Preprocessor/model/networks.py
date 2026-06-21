@@ -24,7 +24,9 @@ class StyleAffineMapper(torch.nn.Module):
 
     def forward(self, z, truncation=0.5):
         w = self.mapping(z, None, truncation_psi=truncation)  # shape [batch, 14, 512]
-
+        return self.apply_affines(w)
+    
+    def apply_affines(self, w):
         outputs = []
 
         # Handle First Block
