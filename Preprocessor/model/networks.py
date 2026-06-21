@@ -24,15 +24,17 @@ class StyleAffineMapper(torch.nn.Module):
 
     def forward(self, z, truncation=0.5):
         w = self.mapping(z, None, truncation_psi=truncation)  # shape [batch, 14, 512]
-
+        return self.apply_affines(w)
+    
+    def apply_affines(self, w):
         outputs = []
 
         # Handle First Block
         outputs.append(self.affines[0](w[:, 0]))  # conv1
-        outputs.append(self.affines[1](w[:, 1]))  # toRGB
+        outputs.append(self.affines[1](w[:, 0]))  # toRGB
 
         # Rest of the blocks
-        w_idx = 2
+        w_idx = 1
         affine_idx = 2
         for _ in range(8):
             # conv0

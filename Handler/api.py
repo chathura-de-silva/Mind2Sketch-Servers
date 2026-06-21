@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from services import mix_generator, random_generator, slide_editor, text_editor, text_generator
+from services import mix_generator, project_and_generate, random_generator, slide_editor, text_editor, text_generator
 from models import (
-    ImageResponse, RandomGenerateRequest, SlideGenerateRequest, TextToImageRequest,
+    ImageResponse, ProjectImageRequest, RandomGenerateRequest, SlideGenerateRequest, TextToImageRequest,
     MixGenerateRequest, TextEditRequest, ImagesResponse
 )
 from vectors import get_fixed_vectors
@@ -55,3 +55,12 @@ async def mix_generate(body: MixGenerateRequest):
         raise HTTPException(status_code=503, detail=str(e))
     return ImagesResponse(images=images, count=len(images))
 
+@router.post("/images/project", response_model=ImageResponse)
+async def project_image(body: ProjectImageRequest):
+    try:
+        new_image_id = await project_and_generate(body.image_url)
+        return ImageResponse(id=new_image_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))

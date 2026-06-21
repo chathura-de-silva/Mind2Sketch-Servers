@@ -23,3 +23,19 @@ def generate_presigned_download_url(bucket_name, object_key, expiration=settings
         'expires_in': expiration,
     }
 
+
+def generate_presigned_upload_url(bucket_name, object_key, expiration=settings.user_upload_expiration_seconds):
+    presigned_url = s3.generate_presigned_url(
+        'put_object',
+        Params={
+            'Bucket': bucket_name,
+            'Key': object_key,  
+            'ContentType': 'image/jpeg',
+        },
+        ExpiresIn=expiration,
+    )
+    return {
+        'url': presigned_url,
+        'expires_in': expiration,
+    }
+

@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     aws_s3_endpoint_url: str = ""  # Optional, for custom S3-compatible services
     image_expiration_seconds: int = 3600 # Time in seconds until the generated image URL expires.
+    user_upload_expiration_seconds: int = 600 # Time in seconds until the upload URL expires.
 
     #Databse Settings
     mongodb_uri: str = ""  # better to use a read only user for this with limited permissions as the service is only for image retreival.
