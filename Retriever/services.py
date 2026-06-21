@@ -1,8 +1,10 @@
+from uuid import uuid4
+
 from bson import ObjectId
 from config import ImageStatus
 from database import database
 from config import settings
-from s3Client import generate_presigned_download_url
+from s3Client import generate_presigned_download_url, generate_presigned_upload_url
 from typing import Optional
 
 
@@ -58,3 +60,21 @@ async def get_image_by_id(image_id: str):
         "url": url["url"],
         "expires_in": url["expires_in"],
     }
+
+async def get_presigned_upload_url(expiry: int =settings.user_upload_expiration_seconds):
+    object_key = f"user_upload/{uuid4()}"
+    try:
+        upload_url = generate_presigned_upload_url(
+            bucket_name=settings.s3_bucket_name,
+            object_key=object_key,
+            expiration=expiry,
+        )
+
+        download_url = generate_presigned_download_url(
+            bucket_name=settings.s3_bucket_name,
+            object_key=object_key,
+            expiration=expiry,
+        )
+    except Exception as e:
+        raise ConnectionError(f"Failed to generate presigned upload URL with S3: {str(e)}")
+    return upload_url["url"], download_url["url"]

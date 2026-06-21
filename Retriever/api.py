@@ -8,8 +8,9 @@ from models import (
     InitialFacesRequest,
     InitialFacesResponse,
     InitialFaceItem,
+    UploadUrlResponse,
 )
-from services import get_image_by_id, get_initial_faces
+from services import get_image_by_id, get_initial_faces, get_presigned_upload_url
 
 router = APIRouter()
 
@@ -39,3 +40,8 @@ async def get_image(params: SingleImageGetRequest = Depends()):
     return SingleImageGetResponse(
         id=params.id, url=image_data["url"], expires_in=image_data["expires_in"]
     )
+
+@router.post("/images/upload")
+async def get_upload_url():
+    upload_url, download_url = await get_presigned_upload_url()
+    return UploadUrlResponse(upload_url=upload_url, download_url=download_url)

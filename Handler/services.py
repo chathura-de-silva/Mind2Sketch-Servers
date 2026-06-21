@@ -129,3 +129,16 @@ async def text_editor(image_id: str, prompt: str, count: int, blend_ratio: float
     )
 
     return [ImageResponse(id=image_id) for image_id in new_image_ids]
+
+
+async def project_and_generate(image_url: str) -> str:
+    result = await database.db["images"].insert_one(
+        {"status": imageStatus.PENDING.value}
+    )
+    image_id = str(result.inserted_id)
+    enqueue_job(
+        job_type=jobType.PRE_PROJECT_E4E,
+        payload={"image_url": image_url},
+        job_id=image_id,
+    )
+    return image_id

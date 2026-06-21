@@ -37,3 +37,6 @@ class ImagesResponse(BaseModel):
     images: List[ImageResponse]
     count: int
 
+class ProjectImageRequest(BaseModel):
+    image_url: str = Field(..., description="URL of the image to project")
+
