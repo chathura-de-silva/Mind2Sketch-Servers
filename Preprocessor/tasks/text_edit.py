@@ -18,7 +18,7 @@ def text_edit(self, **kwargs):
             raise ValueError("text_prompt is required.")
 
         negative_prompt = kwargs.get("negative_prompt")
-        if negative_prompt == "":
+        if negative_prompt is None:
             try:
                 negative_prompt = model_manager.get_negative_prompt(text_prompt)
             except Exception:
