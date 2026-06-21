@@ -31,10 +31,10 @@ class StyleAffineMapper(torch.nn.Module):
 
         # Handle First Block
         outputs.append(self.affines[0](w[:, 0]))  # conv1
-        outputs.append(self.affines[1](w[:, 1]))  # toRGB
+        outputs.append(self.affines[1](w[:, 0]))  # toRGB
 
         # Rest of the blocks
-        w_idx = 2
+        w_idx = 1
         affine_idx = 2
         for _ in range(8):
             # conv0
