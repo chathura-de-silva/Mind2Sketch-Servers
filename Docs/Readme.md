@@ -84,7 +84,7 @@ Retriever (FastAPI)
 - Accept HTTP requests for image generation and editing
 - Validate request payloads
 - Enqueue tasks to Redis
-- Load and Manage feature specific style vectors
+- Load and Manage feature specific style vectors and initial faces
 
 **Technology Stack**:
 
@@ -103,6 +103,7 @@ Retriever (FastAPI)
 - Query MongoDB for image metadata
 - Retrieve images from S3
 - Provide status updates on image generation status
+- provide endpoints for image upload and retrieval
 
 **Technology Stack**:
 
@@ -137,7 +138,7 @@ Retriever (FastAPI)
 **Key Tasks**:
 
 - `GENERATE_S`: Generate image from style space
-- `GENERATE_W`: Generate image from style space (Not implemented yet)
+- `GENERATE_W`: Generate image from style space (Not implemented)
 
 ---
 
@@ -151,13 +152,17 @@ Retriever (FastAPI)
 
 - Mix multiple style vectors
 - Seed to Style vector using the Mapper Neural Network.
-- \+ More functions to be added in the future
+- Sanitize and do E4E inference on input images to get latent vectors
+- Clip based image generation/manipulation
+- Do slider based image manipulation using latent space vectors
 
 **Technology Stack**:
 
 - Celery
 - PyTorch
 - CLIP based functions (text-to-image models) (To be Implemented)
+- Pytorch MTCNN
+- E4E encoder for Projection
 
 ---
 
@@ -250,11 +255,13 @@ python -m venv venv
 
 # Install dependencies
 pip install -r requirements.txt
-
 # For GPU support, ensure CUDA is properly set up and PyTorch is installed with CUDA support. Refer to the PyTorch installation guide for details.
 
 # Create and update .env file with your configuration
 ```
+
+- add `ffhq.pkl`(model weights file; finetuned version of yours or the [original](https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/) depending on requirement.) to `./Generator/models` folder.
+
 
 #### Step 5: Set Up Preprocessor Service
 
@@ -268,10 +275,38 @@ python -m venv venv
 # Install dependencies
 pip install -r requirements.txt
 
+# then
+pip install --no-deps -r requirements-nodeps.txt
+
 # Create and update .env file with your configuration
 ```
-
 ---
+
+- add `ffhq.pkl`(model weights file; finetuned version of yours or the [original](https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/) depending on requirement.) to `./Generator/models` folder.
+
+- Install Ollama (Optional. Will improve accuracy of text based image manipulation. Will gracefully fallback to a neutral vector if Ollama is not installed or the model is not downloaded at the cost of reduced accuracy):
+  - Download and install Ollama from [Ollama's official website](https://ollama.com/download).
+  - Follow the installation instructions for your operating system.
+  - Verify the installation by running `ollama --version` in your terminal.
+  - Install the Ollama model [`gemma4:e2b-it-q4_K_M`](https://ollama.com/library/gemma4:e2b-it-q4_K_M) by running the command:
+    ```bash
+    ollama run gemma4:e2b-it-q4_K_M
+    ```
+- Download the E4E encoder weights from [here](https://drive.google.com/uc?id=1cUv_reLE6k3604or78EranS7XzuVMWeO)(or use gdown as follows) and place it in the `./Preprocessor/model` directory.(`e4e_ffhq_encode.pt`)
+
+    ```bash
+      cd Preprocessor/model
+      pip install gdown
+      gdown 1cUv_reLE6k3604or78EranS7XzuVMWeO
+    ``` 
+
+- download (or put if you trained your own) the (CLIP output space to Style Space)mapper model weights from [here](https://drive.google.com/file/d/1Hg_76Ue7I7ZEoRzO6F7znJw6rTvcD9e7/view?usp=sharing) and place it in the `./Preprocessor/model` directory.(`mapping_network.pth`)
+
+    ```bash
+      cd Preprocessor/model
+      pip install gdown
+      gdown 1Hg_76Ue7I7ZEoRzO6F7znJw6rTvcD9e7
+    ```
 
 ## Configuration
 
@@ -300,18 +335,18 @@ mongod --dbpath /path/to/data
 ```bash
 cd Handler
 .\venv\Scripts\activate
-fastapi run main:app --host 0.0.0.0 --port 8000 --reload
+fastapi run --port 8000
 ```
-[!NOTE] The Handler service must be started before the workers, as it is responsible for enqueuing tasks to Redis. Select the port for the Handler service (default 8000) and ensure that it matches the configuration in the .env files of the workers.
+The Handler service must be started before the workers, as it is responsible for enqueuing tasks to Redis. Select the port for the Handler service (default 8000) and ensure that it matches the configuration in the .env files of the workers.
 
 #### Terminal 4 - Start Retriever Service
 
 ```bash
 cd Retriever
 .\venv\Scripts\activate
-fastapi run main:app --host 0.0.0.0 --port 8001 --reload
+fastapi run --port 8001
 ```
-[!NOTE] The Retriever service can be started at any time, but it is recommended to start it after the Handler service to ensure that the system is fully operational. Select the port for the Retriever service (default 8001) and ensure that it matches the configuration in the .env files of the workers.
+ The Retriever service can be started at any time, but it is recommended to start it after the Handler service to ensure that the system is fully operational. Select the port for the Retriever service (default 8001) and ensure that it matches the configuration in the .env files of the workers.
 
 #### Terminal 5 - Start Generator Worker
 
@@ -336,3 +371,35 @@ celery -A worker worker --loglevel=info --pool=solo
 ## Scaling for Higher Inference Throughput
 
 Note that both the Generator and Preprocessor services can be scaled horizontally for higher inference throughput, just by starting multiple worker instances on multiple gpu servers with exact same configuration. 
+
+## Remarks
+
+- Preprocessor is using facenet-pytorch for MTCNN and E4E encoder for projection. The facenet-pytorch package installed without dependencies to avoid numpy version conflicts. The package is installed from a specific commit of the GitHub repository to ensure compatibility with the rest of the system.
+
+```bash
+pip install --no-deps -r requirements-nodeps.txt)
+```
+- There are two code blocks on handler that runs on startup which are responsible for creating new collections. (If database is fresh). But only two collections are currently being used. Rest are for future use and can be ignored for now. The two collections are:
+
+    1. `images` - for storing image metadata
+
+     2. `initial_faces` - for storing initial faces and their style vectors.
+
+- `./Handler/database.py` holds the majority of collections while `./Handler/InitialImageSeeder.py` is responsible for seeding the initial faces collection with initial faces and their style vectors. This will run only once on first startup of the handler service. It will check for the existance of the collection and  if that is the case whther the record count matches the number of csv files specified inside `./Handler/vectors/faces/metaData.Json`. If not it will drop the collection and re create collection and re seed data.
+
+- both metaData.json files inside `./Handler/vectors/faces` and `./Handler/vectors/featureDirections` are used to read the csv's and seed or take vectors in to memory. 
+Both have an id field, but it starts at 1. Despite this, upon api calls, those file's are in the same order but 0 indexed. So to refer to vector id `n` in metaData.Json, you should use `n-1`.
+
+- high and low values specified in  `./Handler/vectors/featureDirections/metaData.Json` are used to clamp the values of the feature direction vectors. But it is not being used as of now and the range for all vectors is fixed.
+
+- branch `sl-faces` contains a different version of the same implenentation except for E4E projection pipeline. It uses a 256x256 images hence different from the implementation in the main branch which uses 1024x1024 images.
+
+ - Note that all the weight files are different for `sl-faces`. All the provided weight files and specifications in this README are for the main branch.
+
+## Resources / Special Dependencies
+
+- [Mind2Sketch Project](https://github.com/Mind2Sketch)      
+- [StyleClip](https://github.com/orpatashnik/StyleCLIP)
+- [StyleGAN2 Ada-Pytorch (Modified)](https://github.com/Mind2Sketch/stylegan2-ada-pytorch)
+- [E4E Encoder](https://github.com/omertov/encoder4editing)
+- [E4E Projection playground Notebook](https://colab.research.google.com/drive/1fXwrUCLjlrodUqnpYza1l8OtVfuP_bph)
