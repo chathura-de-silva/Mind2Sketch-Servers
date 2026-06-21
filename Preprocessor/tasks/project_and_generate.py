@@ -17,8 +17,9 @@ def project_and_generate(self, **kwargs):
         response.raise_for_status()
         image = Image.open(io.BytesIO(response.content)).convert("RGB")
 
+        face_img = model_manager.detect_crop_and_resize(image)
         # Call the E4E projection function to get the W+ vector
-        w_plus_vector = model_manager.project_e4e(image)
+        w_plus_vector = model_manager.project_e4e(face_img)
         
         # Convert W+ vector to Style Space
         style_vector = model_manager.w_plus_to_s(w_plus_vector)
