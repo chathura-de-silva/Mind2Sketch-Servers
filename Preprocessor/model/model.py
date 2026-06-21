@@ -64,8 +64,8 @@ class Model:
         sys.path.insert(0, E4E_REPO_PATH)
         if not Path(E4E_MODEL_PATH).exists():
             raise FileNotFoundError(f"E4E  weight file not found at {E4E_MODEL_PATH}. Please ensure the model file exists.")
-        from utils.model_utils import setup_model as e4e_setup_model
-        self.e4e_net, _ = e4e_setup_model(E4E_MODEL_PATH, str(self.device))
+        from utils.model_utils import load_e4e_standalone
+        self.e4e_net = load_e4e_standalone(E4E_MODEL_PATH, str(self.device))
         
         self.e4e_net.eval()
         self.e4e_transforms = transforms.Compose([
@@ -155,12 +155,7 @@ class Model:
         x = self.e4e_transforms(image).unsqueeze(0).to(self.device).float()
 
         with torch.no_grad():
-            codes = self.e4e_net.encoder(x)
-            if self.e4e_net.opts.start_from_latent_avg:
-                if codes.ndim == 2:
-                    codes = codes + self.e4e_net.latent_avg.repeat(codes.shape[0], 1, 1)[:, 0, :]
-                else:
-                    codes = codes + self.e4e_net.latent_avg.repeat(codes.shape[0], 1, 1)
+            codes = self.e4e_net(x)
 
         return codes  # [1, 18, 512]
 
