@@ -1,0 +1,3 @@
+# facenet-pytorch pins numpy<2.0.0 which conflicts with our numpy==2.4.6 pin.
+# Installed with --no-deps since runtime compatibility with numpy 2.x is fine in practice.
+facenet-pytorch @ git+https://github.com/timesler/facenet-pytorch.git@787da06156087cd6b616fe6608213722bddc30cd
